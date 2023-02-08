@@ -8,16 +8,21 @@ import (
 )
 
 type Cell struct {
-	flagged bool
-	mine    bool
-	visible bool
-	close   int
+	mine  bool
+	close int
+	state int
 }
 
 const (
-	STATE_PLAYING = iota + 1
-	STATE_WON
-	STATE_LOST
+	GAME_STATE_PLAYING = iota + 1
+	GAME_STATE_WON
+	GAME_STATE_LOST
+)
+
+const (
+	CELL_STATE_INVISIBLE = iota + 1
+	CELL_STATE_VISIBLE
+	CELL_STATE_FLAGGED
 )
 
 type Grid = [][]Cell
@@ -30,10 +35,9 @@ func create_grid(size_x int, size_y int, incidence float32) Grid {
 
 		for x := 0; x < size_x; x++ {
 			row = append(row, Cell{
-				flagged: false,
-				mine:    rand.Float32() < incidence,
-				visible: false,
-				close:   0,
+				mine:  rand.Float32() < incidence,
+				state: CELL_STATE_INVISIBLE,
+				close: 0,
 			})
 		}
 
@@ -51,10 +55,10 @@ func print_grid(grid Grid) {
 		for x := 0; x < len(grid[y]); x++ {
 			cell := grid[y][x]
 
-			if cell.visible == false {
-				goterm.Print(" I")
-			} else if cell.flagged {
+			if cell.state == CELL_STATE_FLAGGED {
 				goterm.Print(" f")
+			} else if cell.state == CELL_STATE_INVISIBLE {
+				goterm.Print(" I")
 			} else if cell.mine {
 				goterm.Print(" *")
 			} else if cell.close > 0 {
@@ -113,11 +117,11 @@ func min(a int, b int) int {
 
 // Returns true if you revealed a mine
 func reveal(grid Grid, x int, y int) bool {
-	if grid[y][x].visible {
+	if grid[y][x].state == CELL_STATE_VISIBLE {
 		return false
 	}
 
-	grid[y][x].visible = true
+	grid[y][x].state = CELL_STATE_VISIBLE
 
 	if grid[y][x].mine {
 		return true
@@ -138,4 +142,22 @@ func reveal(grid Grid, x int, y int) bool {
 	}
 
 	return false
+}
+
+func check_win(grid Grid) bool {
+	for y := 0; y < len(grid); y++ {
+		for x := 0; x < len(grid[y]); x++ {
+			cell := grid[y][x]
+
+			if cell.state == CELL_STATE_INVISIBLE {
+				return false
+			}
+
+			if cell.mine != (cell.state == CELL_STATE_FLAGGED) {
+				return false
+			}
+		}
+	}
+
+	return true
 }

@@ -5,8 +5,8 @@ func main() {
 
 	size_x := 10
 	size_y := 10
-	grid := create_grid(size_x, size_y, .1)
-	// state := STATE_PLAYING
+	grid := create_grid(size_x, size_y, .08)
+	state := GAME_STATE_PLAYING
 	pos_x := 0
 	pos_y := 0
 
@@ -34,15 +34,52 @@ Loop:
 				pos_x += 1
 			}
 		case " ":
-			reveal(grid, pos_x, pos_y)
+			if reveal(grid, pos_x, pos_y) {
+				state = GAME_STATE_LOST
+			} else if check_win(grid) {
+				state = GAME_STATE_WON
+			}
 
 			print_grid(grid)
+
+		case "f":
+
+			cell := &grid[pos_y][pos_x]
+
+			if cell.state != CELL_STATE_VISIBLE {
+
+				if cell.state == CELL_STATE_FLAGGED {
+					cell.state = CELL_STATE_INVISIBLE
+				} else {
+					cell.state = CELL_STATE_FLAGGED
+
+					if check_win(grid) {
+						state = GAME_STATE_WON
+					}
+
+				}
+
+				print_grid(grid)
+
+			}
+
 		default:
+			break Loop
+		}
+
+		if state != GAME_STATE_PLAYING {
+			if state == GAME_STATE_LOST {
+				println("You lost!")
+			} else {
+				println("You won!")
+			}
+
+			await_input()
+
 			break Loop
 		}
 
 		clear_brackets()
 
 	}
-
 }
