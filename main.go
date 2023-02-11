@@ -1,19 +1,26 @@
 package main
 
+const (
+	GAME_STATE_PLAYING = iota + 1
+	GAME_STATE_WON
+	GAME_STATE_LOST
+	GAME_STATE_QUIT
+)
+
 func main() {
 	init_term()
 
 	size_x := 10
 	size_y := 10
 	grid := create_grid(size_x, size_y, .08)
+
 	state := GAME_STATE_PLAYING
 	pos_x := 0
 	pos_y := 0
 
 	print_grid(grid)
 
-Loop:
-	for {
+	for state == GAME_STATE_PLAYING {
 		print_brackets(pos_x, pos_y)
 
 		switch await_input() {
@@ -64,22 +71,21 @@ Loop:
 			}
 
 		default:
-			break Loop
-		}
-
-		if state != GAME_STATE_PLAYING {
-			if state == GAME_STATE_LOST {
-				println("You lost!")
-			} else {
-				println("You won!")
-			}
-
-			await_input()
-
-			break Loop
+			state = GAME_STATE_QUIT
 		}
 
 		clear_brackets()
-
 	}
+
+	if state != GAME_STATE_QUIT {
+		if state == GAME_STATE_LOST {
+			println("You lost!")
+		} else {
+			println("You won!")
+		}
+
+		await_input()
+	}
+
+	cleanup_term()
 }

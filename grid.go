@@ -14,12 +14,6 @@ type Cell struct {
 }
 
 const (
-	GAME_STATE_PLAYING = iota + 1
-	GAME_STATE_WON
-	GAME_STATE_LOST
-)
-
-const (
 	CELL_STATE_INVISIBLE = iota + 1
 	CELL_STATE_VISIBLE
 	CELL_STATE_FLAGGED

@@ -11,12 +11,16 @@ func init_term() {
 	goterm.Clear()
 	goterm.MoveCursor(1, 1)
 
-	// hide_cursor()
+	// Hide cursor
+	goterm.Print("\u001b[?25l")
 }
 
-func hide_cursor() {
-	// goterm.MoveCursor(-1, -1)
-
+func cleanup_term() {
+	// Clear term
+	print("\u001b[2J")
+	
+	// Show cursor
+	print("\u001b[?25h")
 }
 
 func print_brackets(x int, y int) {
